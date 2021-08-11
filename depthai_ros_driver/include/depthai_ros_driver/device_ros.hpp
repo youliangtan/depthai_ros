@@ -118,7 +118,8 @@ public:
 
         buf.resize(packet_size);
         toLE(datatype, buf.data() + packet_size - 8);
-        toLE(dat_size, buf.data() + packet_size - 4);
+        toLE(ser_size, buf.data() + packet_size - 4);
+
 
         std::memcpy(buf.data(), dat, dat_size);
         std::memcpy(buf.data() + dat_size, ser, ser_size);
