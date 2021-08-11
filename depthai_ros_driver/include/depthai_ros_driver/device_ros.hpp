@@ -132,10 +132,13 @@ public:
             }
             fclose(fp);
         }
+        // buf[14] = 194;// 0
+        // buf[141] = 194;// 0
+        // buf[186] = 8;// 0
 
         std::cout << "message: " << datatype << ", " << dat_size << ", " << ser_size << ", " << packet_size << std::endl;
 
-        // _stream.write(buf);
+        _stream.write(buf);
     }
 
     void write(std::shared_ptr<dai::RawBuffer> data, std::vector<std::uint8_t>& buf) {
@@ -210,6 +213,24 @@ protected:
             msgpack::pack(sbuf, *msg);
 
             std::cout << "subscribed message:\n" << *msg << std::endl;
+            {
+                msgpack::object_handle oh = msgpack::unpack(sbuf.data(), sbuf.size());
+                msgpack::object obj = oh.get();
+                std::cout << "deserialized (original message): \n" << obj << std::endl;
+            }
+
+            {
+                sbuf.data()[14] = 194;// 0
+                sbuf.data()[141] = 194;// 0
+                sbuf.data()[186] = 8;// 0
+
+                msgpack::object_handle oh = msgpack::unpack(sbuf.data(), sbuf.size());
+                msgpack::object obj = oh.get();
+                std::cout << "deserialized (hacked): \n" << obj << std::endl;
+            }
+
+
+
 
             dai::CameraControl ctrl;
             ctrl.setCaptureStill(true);
