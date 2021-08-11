@@ -127,8 +127,8 @@ public:
 
         {
             FILE *fp = fopen("/home/kota/temp/message.txt", "w");
-            for (int i = 0; i < ser_size; ++i) {
-                fprintf(fp, "%d: %u\n", i, ser[i]);
+            for (int i = 0; i < buf.size(); ++i) {
+                fprintf(fp, "%d: %u\n", i, buf.data()[i]);
             }
             fclose(fp);
         }
@@ -161,8 +161,8 @@ public:
 
         {
             FILE *fp = fopen("/home/kota/temp/control.txt", "w");
-            for (int i = 0; i < ser_size; ++i) {
-                fprintf(fp, "%d: %u\n", i, ser[i]);
+            for (int i = 0; i < buf.size(); ++i) {
+                fprintf(fp, "%d: %u\n", i, buf.data()[i]);
             }
             fclose(fp);
         }
@@ -209,7 +209,7 @@ protected:
             // convert msg to data
             msgpack::pack(sbuf, *msg);
 
-            std::cout << "message" << *msg << std::endl;
+            std::cout << "subscribed message:\n" << *msg << std::endl;
 
             dai::CameraControl ctrl;
             ctrl.setCaptureStill(true);
