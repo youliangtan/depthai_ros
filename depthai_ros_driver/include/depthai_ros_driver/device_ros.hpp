@@ -26,6 +26,8 @@
 #include <depthai_datatype_msgs/datatype_msgs.h>
 #include <depthai_ros_msgs/TriggerNamed.h>
 
+#include "depthai/depthai.hpp"
+
 namespace rr {
 /**
  * @brief simple class to run a function at the destruction, unless disabled
@@ -105,7 +107,7 @@ public:
     PacketWriter(dai::XLinkStream& stream)
             : _stream(stream) {}
 
-    auto toLE(std::uint32_t num, std::uint8_t* le_data) {
+    static auto toLE(std::uint32_t num, std::uint8_t* le_data) {
         le_data[0] = static_cast<std::uint8_t>((num & 0x000000ff) >> 0u);
         le_data[1] = static_cast<std::uint8_t>((num & 0x0000ff00) >> 8u);
         le_data[2] = static_cast<std::uint8_t>((num & 0x00ff0000) >> 16u);
@@ -117,12 +119,53 @@ public:
         size_t packet_size = dat_size + ser_size + 8;
 
         buf.resize(packet_size);
-        toLE(datatype, buf.data() + packet_size - 8);
-        toLE(ser_size, buf.data() + packet_size - 4);
-
 
         std::memcpy(buf.data(), dat, dat_size);
         std::memcpy(buf.data() + dat_size, ser, ser_size);
+        toLE(datatype, buf.data() + packet_size - 8);
+        toLE(ser_size, buf.data() + packet_size - 4);
+
+        {
+            FILE *fp = fopen("/home/kota/temp/message.txt", "w");
+            for (int i = 0; i < ser_size; ++i) {
+                fprintf(fp, "%d: %u\n", i, ser[i]);
+            }
+            fclose(fp);
+        }
+
+        std::cout << "message: " << datatype << ", " << dat_size << ", " << ser_size << ", " << packet_size << std::endl;
+
+        // _stream.write(buf);
+    }
+
+    void write(std::shared_ptr<dai::RawBuffer> data, std::vector<std::uint8_t>& buf) {
+        std::vector<std::uint8_t> serialized;
+        dai::DatatypeEnum datatype_enum;
+        data->serialize(serialized, datatype_enum);
+        uint32_t datatype = static_cast<std::uint32_t>(datatype_enum);
+
+        const std::uint8_t* dat = data->data.data();
+        size_t dat_size = data->data.size();
+        const std::uint8_t* ser = serialized.data();
+        size_t ser_size = serialized.size();
+
+        size_t packet_size = dat_size + ser_size + 8;
+
+        buf.resize(packet_size);
+
+        std::memcpy(buf.data(), dat, dat_size);
+        std::memcpy(buf.data() + dat_size, ser, ser_size);
+        toLE(datatype, buf.data() + packet_size - 8);
+        toLE(ser_size, buf.data() + packet_size - 4);
+        std::cout << "control: " << datatype << ", " << dat_size << ", " << ser_size << ", " << packet_size << std::endl;
+
+        {
+            FILE *fp = fopen("/home/kota/temp/control.txt", "w");
+            for (int i = 0; i < ser_size; ++i) {
+                fprintf(fp, "%d: %u\n", i, ser[i]);
+            }
+            fclose(fp);
+        }
 
         _stream.write(buf);
     }
@@ -160,15 +203,32 @@ protected:
         const auto core_sub_lambda = [&stream, &sbuf, &writer_buf](const boost::shared_ptr<MsgType const>& msg) {
             Guard guard([] { ROS_ERROR("Communication failed: Device error or misconfiguration."); });
 
+            std::cout << "sub 01" << std::endl;
+            PacketWriter writer(*stream);
+
             // convert msg to data
             msgpack::pack(sbuf, *msg);
-            PacketWriter writer(*stream);
-            writer.write(msg->data.data(), msg->data.size(), reinterpret_cast<std::uint8_t*>(sbuf.data()), sbuf.size(),
-                    static_cast<std::uint32_t>(DataType), writer_buf);
+
+            std::cout << "message" << *msg << std::endl;
+
+            dai::CameraControl ctrl;
+            ctrl.setCaptureStill(true);
+            // controlQueue->send(ctrl);
+            auto data = ctrl.serialize();
+            std::cout << "sub 02" << std::endl;
+
+            writer.write(data, writer_buf);
+
+            writer.write(msg->data.data(), msg->data.size(),
+                         reinterpret_cast<std::uint8_t*>(sbuf.data()), sbuf.size(),
+                         static_cast<std::uint32_t>(DataType), writer_buf);
+
+            std::cout << "sub 03" << std::endl;
 
             sbuf.clear();  // Else the sbuf data is accumulated
 
             guard.disable();
+            std::cout << "sub 04" << std::endl;
         };
 
         return core_sub_lambda;
