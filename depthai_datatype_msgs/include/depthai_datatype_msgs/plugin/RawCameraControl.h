@@ -13,23 +13,23 @@ MSGPACK_ADD_ENUM(dai::RawCameraControl::CaptureIntent);
 
 #define DEPTHAI_DATATYPE_MSGS_MESSAGE_RAWCAMERACONTROL_PLUGIN_CLASS_BODY \
     MSGPACK_DEFINE(\
-        cmdMask,\
-        autoFocusMode,\
-        lensPosition,\
-        expManual,\
+        aeLockMode,\
         aeRegion,\
         afRegion,\
-        awbMode,\
-        sceneMode,\
         antiBandingMode,\
-        aeLockMode,\
+        autoFocusMode,\
         awbLockMode,\
+        awbMode,\
+        brightness,\
+        chromaDenoise,\
+        cmdMask,\
+        contrast,\
         effectMode,\
         expCompensation,\
-        brightness,\
-        contrast,\
-        saturation,\
-        sharpness,\
+        expManual,\
+        lensPosition,\
         lumaDenoise,\
-        chromaDenoise\
+        saturation,\
+        sceneMode,\
+        sharpness\
     )
