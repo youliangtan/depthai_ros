@@ -29,7 +29,10 @@ jobs:
       shell: bash
       run: |
         apt update
-        apt install -y libusb-1.0-0{,-dev} python3-colcon-common-extensions # temp
+        apt install -y \
+          libusb-1.0-0{,-dev} \
+          python3-colcon-common-extensions # temp
+          python3-rosdep
     - uses: actions/download-artifact@v2
       with:
         name: workspace
@@ -49,7 +52,10 @@ jobs:
       shell: bash
       run: |
         source /opt/ros/*/setup.bash
-        cd catkin_ws/src
+        cd catkin_ws
+        rosdep init
+        rosdep update
+        rosdep install --from-paths src --ignore-src
         # catkin_init_workspace
     - name: 'Build and install'
       shell: bash
