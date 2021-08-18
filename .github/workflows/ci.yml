@@ -31,7 +31,7 @@ jobs:
         apt update
         apt install -y \
           libusb-1.0-0{,-dev} \
-          python3-colcon-common-extensions # temp \
+          python3-colcon-common-extensions \
           python3-rosdep
     - uses: actions/download-artifact@v2
       with:
@@ -55,7 +55,7 @@ jobs:
         cd catkin_ws
         rosdep init
         rosdep update
-        rosdep install --from-paths src --ignore-src
+        rosdep install --from-paths src --ignore-src -yr
         # catkin_init_workspace
     - name: 'Build and install'
       shell: bash
