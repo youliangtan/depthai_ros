@@ -31,7 +31,7 @@ jobs:
         apt update
         apt install -y \
           libusb-1.0-0{,-dev} \
-          python3-colcon-common-extensions # temp
+          python3-colcon-common-extensions # temp \
           python3-rosdep
     - uses: actions/download-artifact@v2
       with:
