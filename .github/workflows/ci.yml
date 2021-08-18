@@ -22,14 +22,14 @@ jobs:
       image: ${{ matrix.images }}
     strategy:
       matrix:
-        images: ['ros:noetic-perception', 'ros:melodic-perception', 'foxy-foxy-base']
+        images: ['ros:noetic-perception', 'ros:melodic-perception', 'ros:foxy-ros-base']
         # compiler: ["/usr/bin/g++", "/usr/bin/clang++"]
     steps:
     - name: 'Install dependencies'
       shell: bash
       run: |
         apt update
-        apt install -y libusb-1.0-0{,-dev}
+        apt install -y libusb-1.0-0{,-dev} python3-colcon-common-extensions # temp
     - uses: actions/download-artifact@v2
       with:
         name: workspace
@@ -50,14 +50,15 @@ jobs:
       run: |
         source /opt/ros/*/setup.bash
         cd catkin_ws/src
-        catkin_init_workspace
+        # catkin_init_workspace
     - name: 'Build and install'
       shell: bash
       run: |
         export PYTHONIOENCODING=utf8  # from github.com/docker/compose/issues/2576
         source /opt/ros/*/setup.bash
         cd catkin_ws
-        catkin_make_isolated --install
+        colcon build
+        # catkin_make_isolated --install
     - name: 'Source and confirm'
       shell: bash
       run: |
