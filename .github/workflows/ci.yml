@@ -22,7 +22,8 @@ jobs:
       image: ${{ matrix.images }}
     strategy:
       matrix:
-        images: ['ros:noetic-perception', 'ros:melodic-perception', 'ros:foxy-ros-base']
+        # TODO: melodic rosdep3
+        images: ['ros:noetic-perception', 'ros:foxy-ros-base']
         # compiler: ["/usr/bin/g++", "/usr/bin/clang++"]
     steps:
     - name: 'Install dependencies'
