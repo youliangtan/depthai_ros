@@ -1,12 +1,6 @@
 name: Build CI
 
-on:
-  push:
-    branches:
-    - master
-  pull_request:
-    types: [opened, synchronize, reopened]
-
+on: [push, pull_request] # TODO upadate
 jobs:
   clone:
     # separate clone + artifact job because the action wants git 2.18
@@ -28,7 +22,7 @@ jobs:
       image: ${{ matrix.images }}
     strategy:
       matrix:
-        images: ['ros:noetic-perception', 'ros:melodic-perception']
+        images: ['ros:noetic-perception', 'ros:melodic-perception', 'foxy-foxy-base']
         # compiler: ["/usr/bin/g++", "/usr/bin/clang++"]
     steps:
     - name: 'Install dependencies'
