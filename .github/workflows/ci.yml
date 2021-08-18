@@ -53,7 +53,6 @@ jobs:
       run: |
         source /opt/ros/*/setup.bash
         cd catkin_ws
-        rosdep init
         rosdep update
         rosdep install --from-paths src --ignore-src -yr
         # catkin_init_workspace
